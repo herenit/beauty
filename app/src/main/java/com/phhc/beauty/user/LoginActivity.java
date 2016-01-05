@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,10 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.phhc.beauty.R;
 import com.phhc.beauty.main.MainActivity;
+import com.phhc.beauty.utils.Constants;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
 
 /**
@@ -24,6 +29,7 @@ import com.phhc.beauty.main.MainActivity;
  */
 public class LoginActivity extends Activity implements View.OnClickListener {
 
+    private IWXAPI api;
     private TextView forget_password;
     private ImageButton back;
     private Intent intent;
@@ -31,6 +37,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private EditText username, password;
     private ProgressDialog progressDialog;
     private TextView register;
+    private ImageView weixin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,11 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         password = (EditText) findViewById(R.id.password);
         register = (TextView)findViewById(R.id.register);
         register.setOnClickListener(this);
+        weixin = (ImageView)findViewById(R.id.weixin);
+        weixin.setOnClickListener(this);
+        api = WXAPIFactory.createWXAPI(this, Constants.APP_ID, true);
+        api.registerApp(Constants.APP_ID);
+//        api = WXAPIFactory.createWXAPI(this, Constants.APP_ID);
         // 隐藏输入法
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(LoginActivity.this.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(username.getWindowToken(), 0);
@@ -73,10 +85,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 });
                 break;
             case R.id.back:
-//                intent = new Intent();
-//                intent.setAction("android.intent.action.Initial");
-//                startActivity(intent);
-//                overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
                 finish();
                 break;
             case R.id.forget_password:
@@ -88,6 +96,12 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 intent = new Intent();
                 intent.setAction("android.intent.action.Register");
                 startActivity(intent);
+                break;
+            case R.id.weixin:
+                final SendAuth.Req req = new SendAuth.Req();
+                req.scope = "snsapi_userinfo";
+                req.state = "com_phhc_beauty";
+                api.sendReq(req);
                 break;
         }
     }

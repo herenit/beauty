@@ -35,11 +35,11 @@ public class App extends Application {
     public TextView mLocationResult;
     public Vibrator mVibrator;
     public static String deviceId;
-    private static final String APP_ID = "wx99b98ec3f0485c73";
+    private static final String APP_ID = "wxbe84efc80b1ce061";
     private IWXAPI api;
 
-    public  void regToWx(){
-        api = WXAPIFactory.createWXAPI(this,APP_ID,true);
+    public void regToWx() {
+        api = WXAPIFactory.createWXAPI(this, APP_ID, true);
         api.registerApp(APP_ID);
     }
 
@@ -59,7 +59,7 @@ public class App extends Application {
         mLocationClient = new LocationClient(this.getApplicationContext());
         mMyLocationListener = new MyLocationListener();
         mLocationClient.registerLocationListener(mMyLocationListener);
-        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
+        mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
         //leancloud
         AVOSCloud.initialize(this, "OAK1VlBLXxINqhLjE6hIHuJM-gzGzoHsz", "B1tKXRuex8IT8C8DpRebKk73");
         AVAnalytics.enableCrashReport(this, true);
@@ -81,13 +81,12 @@ public class App extends Application {
                 android.provider.Settings.Secure.ANDROID_ID);
         UUID deviceUuid = new UUID(androidId.hashCode(),
                 ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-        String selfId  = deviceUuid.toString();
+        String selfId = deviceUuid.toString();
         deviceId = selfId;
 
-        final IWXAPI api = WXAPIFactory.createWXAPI(this, null);
+        final IWXAPI api = WXAPIFactory.createWXAPI(this, APP_ID, true);
         // 将该app注册到微信
         api.registerApp(Constants.APP_ID);
-
     }
 
     public static String getClientIdFromPre() {
@@ -119,7 +118,7 @@ public class App extends Application {
             sb.append(location.getLongitude());
             sb.append("\nradius : ");
             sb.append(location.getRadius());
-            if (location.getLocType() == BDLocation.TypeGpsLocation){// GPS定位结果
+            if (location.getLocType() == BDLocation.TypeGpsLocation) {// GPS定位结果
                 sb.append("\nspeed : ");
                 sb.append(location.getSpeed());// 单位：公里每小时
                 sb.append("\nsatellite : ");
@@ -133,7 +132,7 @@ public class App extends Application {
                 sb.append("\ndescribe : ");
                 sb.append("gps定位成功");
 
-            } else if (location.getLocType() == BDLocation.TypeNetWorkLocation){// 网络定位结果
+            } else if (location.getLocType() == BDLocation.TypeNetWorkLocation) {// 网络定位结果
                 sb.append("\naddr : ");
                 sb.append(location.getAddrStr());
                 //运营商信息
@@ -173,6 +172,7 @@ public class App extends Application {
 
     /**
      * 显示请求字符串
+     *
      * @param str
      */
     public void logMsg(String str) {
