@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="300dp"
+    android:background="#ffffff"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/shareText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:text="分享到"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:id="@+id/oneLine"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:layout_below="@+id/shareText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/one"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/wxhaoyou" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/one"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="微信" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/two"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="40dp"
+                android:src="@mipmap/pengyouquan" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/two"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="微信朋友圈" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/three"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="40dp"
+                android:src="@mipmap/weibo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/three"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="新浪微博" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/four"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/qqhaoyou" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/four"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="QQ" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/twoLine"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:layout_below="@+id/oneLine"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/five"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/kongjian" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/five"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="QQ空间" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/six"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="40dp"
+                android:src="@mipmap/txweibo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/six"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="腾讯朋友" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/seven"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="40dp"
+                android:src="@mipmap/youjian" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/seven"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="邮件" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/eight"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/duanxin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/eight"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="短信" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/releaseText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/twoLine"
+        android:text="发布到"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:id="@+id/twoThree"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:layout_below="@+id/releaseText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/faceMap"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/nine"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/portrait" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/nine"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="脸群地图" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/ten"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="40dp"
+                android:src="@mipmap/portrait" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ten"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="PK平台" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/eleven"
+                android:layout_width="40dp"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"
+                android:layout_height="40dp"
+                android:src="@mipmap/youjian" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_below="@+id/eleven"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="邮件" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/twelve"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:visibility="gone"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/duanxin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/twelve"
+                android:visibility="gone"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="短信" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+</RelativeLayout>

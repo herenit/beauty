@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">Beauty</string>
+    <string name="action_settings">Settings</string>
+    <string name="xlistview_footer_hint_normal">查看更多</string>
+    <string name="xlistview_footer_hint_ready">松开载入更多</string>
+    <string name="login" translatable = "false">登录</string>
+    <string name="myAccount" translatable = "false">我的账户</string>
+    <string name="existingAccountLogin" translatable = "false">已有账户      登录</string>
+    <string name="completePersonalInformation" translatable = "false">完善个人信息</string>
+    <string name="addMemberInformation" translatable = "false">添加成员信息</string>
+    <string name="memberManage" translatable = "false">成员管理</string>
+    <string name="modifyPassword" translatable = "false">修改密码</string>
+    <string name="modifyMemberInformation" translatable = "false">修改成员信息</string>
+    <string name="forgetPassword" translatable = "false">忘记密码</string>
+    <string name="setup" translatable = "false">设置</string>
+    <string name="complete" translatable = "false">完成</string>
+    <string name="opinionFeedback" translatable = "false">意见反馈</string>
+    <string name="aboutUs" translatable = "false">关于我们</string>
+    <string name="takeDrugTime" translatable = "false">服药时间点</string>
+    <string name="nextStep" translatable = "false">下一步</string>
+    <string name="byTime" translatable = "false">按时间</string>
+    <string name="delete" translatable = "false">删除</string>
+    <string name="ringList" translatable = "false">铃音列表</string>
+    <string name="companyIntroduce" translatable = "false">公司介绍</string>
+    <string name="pleaseSetTakeDrugTime" translatable = "false">请设置用药时间</string>
+    <string name="cuckoo" translatable = "false">布谷鸟</string>
+    <string name="electric" translatable = "false">电子</string>
+    <string name="happy" translatable = "false">欢乐</string>
+    <string name="guitar" translatable = "false">吉他</string>
+    <string name="churchRing" translatable = "false">教堂钟声</string>
+    <string name="birdVoice" translatable = "false">鸟语</string>
+    <string name="dogVoice" translatable = "false">犬吠</string>
+    <string name="mysteryNote" translatable = "false">神秘音符</string>
+    <string name="note" translatable = "false">音符</string>
+    <string name="functionIntroduce" translatable = "false">功能介绍</string>
+    <string name="welcomePage" translatable = "false">欢迎页</string>
+    <string name="usingProtocol" translatable = "false">使用协议</string>
+    <string name="toRating" translatable = "false">去评分</string>
+    <string name="register" translatable = "false">注册</string>
+    <string name="pleaseInputAuthCode" translatable = "false">请输入验证码</string>
+    <string name="pleaseInput" translatable = "false">请输入</string>
+    <string name="pleaseInputCellphoneNumber" translatable = "false">请输入手机号</string>
+    <string name="relateDrug" translatable = "false">相关药品</string>
+    <string name="existingAccountLoginNoSpace" translatable = "false">已有账户登录</string>
+    <string name="familyMemberManage" translatable = "false">成员管理</string>
+    <string name="pleaseInputYourCellphoneNumber" translatable = "false">请输入您的手机号</string>
+    <string name="pleaseInputDrugName" translatable = "false">请输入药品名称</string>
+    <string name="pleaseInputOldPassword" translatable = "false">请输入旧密码</string>
+    <string name="honeyName" translatable = "false">昵称</string>
+    <string name="remark" translatable = "false">备注</string>
+    <string name="interval" translatable = "false">间隔</string>
+    <string name="specialAdvice" translatable = "false">特殊医嘱</string>
+    <string name="endTime" translatable = "false">结束日期</string>
+    <string name="beginTime" translatable = "false">开始日期</string>
+    <string name="drugDose" translatable = "false">用药剂量</string>
+    <string name="drugFrequency" translatable = "false">用药频率</string>
+    <string name="sex" translatable = "false">性别</string>
+    <string name="man" translatable = "false">男</string>
+    <string name="woman" translatable = "false">女</string>
+    <string name="manualAdd" translatable = "false">手工添加</string>
+    <string name="cellphoneNumber" translatable = "false">手机号</string>
+    <string name="birthday" translatable = "false">生日</string>
+    <string name="relaxTime" translatable = "false">作息时间</string>
+    <string name="pleaseInputNewPassword" translatable = "false">请输入新密码</string>
+    <string name="pleaseInputPassword" translatable = "false">请输入密码</string>
+    <string name="passwordAtLeastSixCharacter" translatable = "false">密码至少6个字符</string>
+    <string name="exit" translatable = "false">退出</string>
+    <string name="userProtocol" translatable = "false">用户协议</string>
+    <string name="openDrugRemind" translatable = "false">开启用药提醒</string>
+    <string name="RingSetting" translatable = "false">铃音设置</string>
+    <string name="save" translatable = "false">保存</string>
+    <string name="cancel" translatable = "false">取消</string>
+    <string name="confirm" translatable = "false">确认</string>
+    <string name="myself" translatable = "false">自己</string>
+    <string name="pleaseChoose" translatable = "false">请选择</string>
+    <string name="pleaseInputHoneyName" translatable = "false">请输入昵称</string>
+</resources>

@@ -1,0 +1,49 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="xmlTopTitleHeight">47dp</dimen>
+    <dimen name="xmlTopTitleHeightAndMiddle">196dp</dimen>
+    <dimen name="xmlDialogTextMargin">20dp</dimen>
+    <dimen name="xmlTopRightTextPaddingSize">10dp</dimen>
+    <dimen name="xmlMiddleRightIconWidth">20dp</dimen>
+    <dimen name="xmlModifyPasswordLeftPadding">20dp</dimen>
+    <dimen name="xmlMiddleRightIconHeight">20dp</dimen>
+    <dimen name="xmlModifyPasswordLayoutMarginTop">10dp</dimen>
+    <dimen name="xmlTopLeftIconWidth">40dp</dimen>
+    <dimen name="xmlTopLeftIconHeight">40dp</dimen>
+    <dimen name="xmlWhiteLineHeight">1dp</dimen>
+    <dimen name="xmlGrayLineHeight">1dp</dimen>
+    <dimen name="xmlBlueLineHeight">1dp</dimen>
+    <dimen name="xmlBoldBlueLineHeight">10dp</dimen>
+    <dimen name="xmlMiddleContentHeight">50dp</dimen>
+    <dimen name="xmlDialogPortraitSelectMargin">3dp</dimen>
+    <dimen name="xmlDialogPortraitSelectOuterMargin">20dp</dimen>
+    <dimen name="xmlMainPageBottomButtonHeight">55dp</dimen>
+    <dimen name="xmlMiddleContentIconPaddingLeft">50dp</dimen>
+    <dimen name="xmlMiddleContentIconPaddingRight">15dp</dimen>
+    <dimen name="xmlTextLayoutMarginLeft">25dp</dimen>
+    <dimen name="xmlTextLayoutMarginRight">20dp</dimen>
+    <dimen name="xmlTextDrawablePadding">10dp</dimen>
+    <dimen name="xmlTopLeftIconMargin">10dp</dimen>
+    <dimen name="xmlRegisterLogoWidth">100dp</dimen>
+    <dimen name="xmlRegisterLogoHeight">100dp</dimen>
+    <dimen name="xmlRegisterLogoInRelative">130dp</dimen>
+    <dimen name="xmlPortraitHeight">60dp</dimen>
+    <dimen name="xmlPortraitWidth">60dp</dimen>
+    <dimen name="xmlAboutUsMiddleHeight">509dp</dimen>
+    <dimen name="xmlModifyPasswordLittleGrayTextMargin">10dp</dimen>
+    <dimen name="xmlModifyPasswordMiddleLeftMargin">20dp</dimen>
+    <dimen name="xmlTimeWithJumpDistance">10dp</dimen>
+
+
+    <dimen name="xmlTopTitleTextSize">19sp</dimen>
+    <dimen name="xmlDialogTextSize">18sp</dimen>
+    <dimen name="xmlLittleTopTitleTextSize">19sp</dimen>
+    <dimen name="xmlMiddleContentTextSize">20sp</dimen>
+    <dimen name="xmlTopRightTextSize">20sp</dimen>
+    <dimen name="xmlModifyPasswordLittleGrayTextSize">12sp</dimen>
+    <dimen name="standard_padding">8dip</dimen>
+    <dimen name="half_padding">4dip</dimen>
+</resources>

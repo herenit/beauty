@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/pic"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@mipmap/question" />
+
+    <TextView
+        android:id="@+id/textOne"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pic"
+        android:layout_centerHorizontal="true"
+        android:text="文字描述：我发的第一张照片"
+        android:textColor="#000000"
+        android:textSize="17sp" />
+
+    <RelativeLayout
+        android:id="@+id/state"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/textOne">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:src="@mipmap/circle" />
+
+        <TextView
+            android:id="@+id/honeyName"
+            android:layout_width="100dp"
+            android:lines="1"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/icon"
+            android:text="17801028290"
+            android:textColor="#cbcbcb"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/honeyName"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/icon"
+            android:text="4小时前"
+            android:textColor="#cbcbcb"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/scoreNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/honeyName"
+            android:text="14"
+            android:textColor="#eda7a4"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/scoreText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/scoreNum"
+            android:text="人评分"
+            android:textColor="#cbcbcb"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/averageFace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/scoreText"
+            android:text="平均颜值"
+            android:textColor="#cbcbcb"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/averageScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/averageFace"
+            android:text=""
+            android:textColor="#eda7a4"
+            android:textSize="14sp" />
+    </RelativeLayout>
+</RelativeLayout>
