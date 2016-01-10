@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.phhc.beauty.R;
 import com.phhc.beauty.utils.StatusUtils;
@@ -234,6 +235,7 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
 
             view = LayoutInflater.from(ShareFace.this).inflate(R.layout.share_face_item, null);
             ImageView imageView = (ImageView) view.findViewById(R.id.pic);
+            final ImageView portrait = (ImageView)view.findViewById(R.id.portrait);
             TextView honeyName = (TextView) view.findViewById(R.id.honeyName);
             TextView time = (TextView) view.findViewById(R.id.time);
             TextView scoreNum = (TextView) view.findViewById(R.id.scoreNum);
@@ -249,7 +251,7 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
             avObjectAVQuery.findInBackground(new FindCallback<AVObject>() {
                 @Override
                 public void done(List<AVObject> list, AVException e) {
-                    if(list != null){
+                    if (list != null) {
                         int size = list.size();
                         long scoreAll = 0;
                         long averageScoreLong = 0;
@@ -265,6 +267,19 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
             });
             scoreNum.setText(this.list.get(position).getInt("scoreNum") + "");
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(ShareFace.this));
+            ImageLoader.getInstance().displayImage(this.list.get(position).getAVFile("pic").getUrl(), imageView, StatusUtils.normalImageOptions);
+            AVQuery<AVUser> query = AVUser.getQuery();
+            query.whereEqualTo("objectId",this.list.get(position).getString("distributeID"));
+            query.findInBackground(new FindCallback<AVUser>() {
+                @Override
+                public void done(List<AVUser> list, AVException e) {
+                    if(e == null){
+                        if(list.get(0).getAVFile("portrait") != null){
+                            ImageLoader.getInstance().displayImage(list.get(0).getAVFile("portrait").getUrl(), portrait, StatusUtils.normalImageOptions);
+                        }
+                    }
+                }
+            });
             ImageLoader.getInstance().displayImage(this.list.get(position).getAVFile("pic").getUrl(), imageView, StatusUtils.normalImageOptions);
 
             return view;

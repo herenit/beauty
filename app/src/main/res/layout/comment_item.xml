@@ -12,7 +12,7 @@
         android:layout_marginTop="20dp">
 
         <ImageView
-            android:id="@+id/icon"
+            android:id="@+id/portrait"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_centerVertical="true"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:layout_toRightOf="@+id/icon"
+            android:layout_toRightOf="@+id/portrait"
             android:text="17801028290"
             android:lines="1"
             android:textColor="#cbcbcb"
@@ -38,7 +38,7 @@
             android:layout_below="@+id/honeyNameComment"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:layout_toRightOf="@+id/icon"
+            android:layout_toRightOf="@+id/portrait"
             android:text=""
             android:textColor="#cbcbcb"
             android:textSize="14sp" />

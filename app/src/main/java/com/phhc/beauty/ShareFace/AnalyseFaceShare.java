@@ -37,7 +37,7 @@ public class AnalyseFaceShare extends Activity implements View.OnClickListener {
     private LooperExecutor executor;
     private Handler mHandler = new Handler();
     private Bitmap mFaceBitmap;
-    private JNILib mJniLib = new JNILib(this);
+    private JNILib mJniLib = new JNILib();
     private int mRet;
 
     private Handler handlerOut;
@@ -58,7 +58,6 @@ public class AnalyseFaceShare extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.analyse_face_share);
 
-        mJniLib.InitFaceBeauty();
         executor = new LooperExecutor();
         executor.requestStart();
         back = (TextView) findViewById(R.id.back);
@@ -99,6 +98,7 @@ public class AnalyseFaceShare extends Activity implements View.OnClickListener {
                 }
             }
         };
+        mJniLib.InitFaceBeauty(this);
     }
 
     @Override

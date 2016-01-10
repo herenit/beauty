@@ -116,6 +116,7 @@
 
                     <TextView
                         android:id="@+id/flaw"
+                        android:visibility="invisible"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/three"
@@ -130,7 +131,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/one"
                         android:layout_marginTop="10dp"
-                        android:text="年龄："
+                        android:text="人生阶段："
                         android:textSize="16sp" />
 
                     <TextView
@@ -144,6 +145,7 @@
 
                     <TextView
                         android:id="@+id/four"
+                        android:visibility="invisible"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/three"

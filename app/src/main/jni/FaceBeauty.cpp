@@ -19,15 +19,19 @@ static int mFlawLabel;  //瑕疵
 static int mExpressionLabel; // 表情
 static float mAge; //年龄
 static float mSkin; //肤色
+static int mLastretValue=ERR_SDKNOINIT;
+static BeautyHandle hFace, hAge, hSkin, hXiaci, hHappy;
 
 extern "C" {
 	JNIEXPORT void JNICALL NAME(SetFaceBeautyPath)(JNIEnv * jenv, jclass s, jstring jPathName);
-	JNIEXPORT jint JNICALL NAME(Calculate)(JNIEnv * jenv, jclass s, jstring jPicName);
+	JNIEXPORT jint JNICALL NAME(NativeCalculate)(JNIEnv * jenv, jclass s, jstring jPicName);
 	JNIEXPORT jfloat JNICALL NAME(GetTotalScore)(JNIEnv * jenv, jclass s);
 	JNIEXPORT jint JNICALL NAME(GetFlawLabel)(JNIEnv * jenv, jclass s);
 	JNIEXPORT jint JNICALL NAME(GetExpressionLabel)(JNIEnv * jenv, jclass s);
 	JNIEXPORT jfloat JNICALL NAME(GetAge)(JNIEnv * jenv, jclass s);
 	JNIEXPORT jfloat JNICALL NAME(GetSkin)(JNIEnv * jenv, jclass s);
+	JNIEXPORT void JNICALL NAME(Init)(JNIEnv * jenv, jclass s);
+	JNIEXPORT void JNICALL NAME(DeInit)(JNIEnv * jenv, jclass s);
 };
 
 JNIEXPORT jfloat JNICALL NAME(GetTotalScore)(JNIEnv * jenv, jclass s)
@@ -64,44 +68,76 @@ JNIEXPORT void JNICALL NAME(SetFaceBeautyPath)(JNIEnv * jenv, jclass s, jstring 
 	jenv->ReleaseStringUTFChars(jPathName,jnamestr);
 }
 
-JNIEXPORT jint JNICALL NAME(Calculate)(JNIEnv * jenv, jclass s, jstring jPicName)
+JNIEXPORT void JNICALL NAME(Init)(JNIEnv * jenv, jclass s)
 {
+	if(mLastretValue == ERR_SDKNOINIT) {
+		int retValue;
+		try {
+			// Initialize
+			msg_Err("#---00000 mFullPathname=%s", mFullPathname);
+			retValue = FaceDetectSetLibPath(mFullPathname);
+			retValue |= FaceDetectInit();
+			if (ERR_NONE != retValue)
+				throw retValue;
+
+			retValue = FaceAlignmentSetLibPath(mFullPathname);
+			retValue |= FaceAlignmentInit();
+			if (ERR_NONE != retValue) {
+				FaceDetectUninit();
+				throw retValue;
+			}
+
+			msg_Err("#---1111");
+			retValue = SetDeepFeatLibPath(mFullPathname);
+			msg_Err("#---22222");
+			retValue |= InitDeepFeat("BeautyModel.dat", &hFace);
+			retValue |= InitDeepFeat("XCModel.dat", &hXiaci);
+			retValue |= InitDeepFeat("PFModel.dat", &hSkin);
+			retValue |= InitDeepFeat("NNModel.dat", &hAge);
+			retValue |= InitDeepFeat("BQModel.dat", &hHappy);
+			if (ERR_NONE != retValue) {
+				FaceDetectUninit();
+				FaceAlignmentUninit();
+				throw retValue;
+			}
+		}
+		catch (const std::bad_alloc &) {
+			retValue = ERR_MEMORYALLOC;
+		}
+		catch (const int &errCode) {
+			retValue = errCode;
+		}
+		catch (...) {
+			retValue = ERR_UNKNOWN;
+		}
+		mLastretValue = retValue;
+	}
+}
+
+JNIEXPORT void JNICALL NAME(DeInit)(JNIEnv * jenv, jclass s)
+{
+	if(mLastretValue ==ERR_NONE) {
+		// Uninitialized
+		FaceDetectUninit();
+		FaceAlignmentUninit();
+		UninitDeepFeat(hFace);
+		UninitDeepFeat(hSkin);
+		UninitDeepFeat(hXiaci);
+		UninitDeepFeat(hHappy);
+		UninitDeepFeat(hAge);
+		mLastretValue = ERR_SDKNOINIT;
+	}
+}
+
+JNIEXPORT jint JNICALL NAME(NativeCalculate)(JNIEnv * jenv, jclass s, jstring jPicName)
+{
+	if(mLastretValue !=ERR_NONE)
+		return mLastretValue;
+
 	const char* strImgName = jenv->GetStringUTFChars(jPicName, NULL);
 	int retValue = ERR_NONE;
-
 	try
 	{
-		// Initialize
-		msg_Err("#---00000 mFullPathname=%s",mFullPathname);
-		retValue = FaceDetectSetLibPath(mFullPathname);
-		retValue |= FaceDetectInit();
-		if (ERR_NONE != retValue)
-			throw retValue;
-
-		retValue = FaceAlignmentSetLibPath(mFullPathname);
-		retValue |= FaceAlignmentInit();
-		if (ERR_NONE != retValue)
-		{
-			FaceDetectUninit();
-			throw retValue;
-		}
-
-		msg_Err("#---1111");
-		retValue = SetDeepFeatLibPath(mFullPathname);
-		msg_Err("#---22222");
-		BeautyHandle hFace, hAge, hSkin, hXiaci, hHappy;
-		retValue |= InitDeepFeat("BeautyModel.dat", &hFace);
-		retValue |= InitDeepFeat("XCModel.dat", &hXiaci);
-		retValue |= InitDeepFeat("PFModel.dat", &hSkin);
-		retValue |= InitDeepFeat("NNModel.dat", &hAge);
-		retValue |= InitDeepFeat("BQModel.dat", &hHappy);
-		if (ERR_NONE != retValue)
-		{
-			FaceDetectUninit();
-			FaceAlignmentUninit();
-			throw retValue;
-		}
-
 		msg_Err("#---strImgName=%s",strImgName);
 		// Read Image
 		cv::Mat garyImgData = cv::imread(strImgName, CV_LOAD_IMAGE_GRAYSCALE);
@@ -310,18 +346,6 @@ JNIEXPORT jint JNICALL NAME(Calculate)(JNIEnv * jenv, jclass s, jstring jPicName
 			score = 100.0f;
 		std::cout << "Skin score: " << score << std::endl;
 		mSkin = score;
-
-		msg_Err("#---dddddd");
-		// Uninitialized
-		FaceDetectUninit();
-		FaceAlignmentUninit();
-		UninitDeepFeat(hFace);
-		UninitDeepFeat(hSkin);
-		UninitDeepFeat(hXiaci);
-		UninitDeepFeat(hHappy);
-		UninitDeepFeat(hAge);
-
-		msg_Err("#---eeeee");
 	}
 	catch (const std::bad_alloc &)
 	{

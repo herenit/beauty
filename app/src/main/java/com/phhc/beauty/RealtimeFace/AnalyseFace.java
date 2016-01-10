@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,7 +41,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
     private LooperExecutor executor;
     private Handler mHandler = new Handler();
     private Bitmap mFaceBitmap;
-    private JNILib mJniLib = new JNILib(this);
+    private JNILib mJniLib = new JNILib();
     private int mRet;
     private static final int CAMERA_REQUEST = 1888;
     int i = 5;
@@ -57,8 +58,6 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.analyse_face);
 
-//        mJniLib.copyAllModelFile(AnalyseFace.this);
-        mJniLib.InitFaceBeauty();
         executor = new LooperExecutor();
         executor.requestStart();
         back = (TextView) findViewById(R.id.back);
@@ -117,6 +116,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                                                     Intent intent = new Intent();
                                                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                                     mFaceBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                                                    mFaceBitmap.recycle();
                                                     byte[] b = baos.toByteArray();
                                                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                                                     // 当前手机时间
@@ -158,7 +158,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                 }
             }
         };
-
+        mJniLib.InitFaceBeauty(this);
     }
 
     @Override
@@ -182,9 +182,6 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
     }
 
     public void takePhoto() {
-//        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//        File photo = new File(Environment.getExternalStorageDirectory(), "Pic.jpg");
-//        startActivityForResult(cameraIntent, CAMERA_REQUEST);
         mFaceBitmap = null;
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //参考   http://blog.csdn.net/csqingchen/article/details/45502813
@@ -195,53 +192,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == 1234 && resultCode == RESULT_OK) {
-            if (null != data)
-                mFaceBitmap = data.getParcelableExtra("data");
-            else {
-                mFaceBitmap = getBitmapFromUrl(getPhotopath(), 480, 640);
-                saveScalePhoto(mFaceBitmap);
-            }
-
-            if (mFaceBitmap != null) {
-                // 显示图片
-                photo.setImageBitmap(mFaceBitmap);
-                // 检测是否是人脸,耗时操作不要放在UI线程！！！
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap tmpBmp = mFaceBitmap.copy(Bitmap.Config.RGB_565, true);
-                        FaceDetector faceDet = new FaceDetector(tmpBmp.getWidth(), tmpBmp.getHeight(), 1); //only 1 face //虽然速度快， 但是是检测的眼睛之间的距离，不符合我们的需求
-                        FaceDetector.Face[] faceList = new FaceDetector.Face[1];
-                        faceDet.findFaces(tmpBmp, faceList);
-                        FaceDetector.Face face = faceList[0];
-                        if (face != null) {
-                            handler.sendEmptyMessage(0);
-                            timer = new Timer();
-                            TimerTask timerTask;
-                            timerTask = new TimerTask() {
-                                @Override
-                                public void run() {
-                                    handler.sendEmptyMessage(2);
-                                }
-                            };
-                            timer.schedule(timerTask, 0, 1000);
-                        } else {
-                            handler.sendEmptyMessage(1);
-                        }
-                    }
-                });
-            }
-        }else{
-            finish();
-        }
-
-    }
-
-    private Bitmap getBitmapFromUrl(String url, double width, double height) {
+    private Bitmap getBitmapFromUrl(String url, double width) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; // 设置了此属性一定要记得将值设置为false
         Bitmap bitmap = BitmapFactory.decodeFile(url);
@@ -252,22 +203,39 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         Matrix matrix = new Matrix();
         float scaleWidth = 1;
         float scaleHeight = 1;
-//        try {
-//            ExifInterface exif = new ExifInterface(url);
-//            String model = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        int ori=-1;
+        try {
+            ExifInterface exif = new ExifInterface(url);
+            ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,-1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(ori!=-1)
+        {
+            switch(ori) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.postRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.postRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.postRotate(270);
+                    break;
+            }
+        }
         // 按照固定宽高进行缩放
         // 这里希望知道照片是横屏拍摄还是竖屏拍摄
         // 因为两种方式宽高不同，缩放效果就会不同
         // 这里用了比较笨的方式
-        if (mWidth <= mHeight) {
-            scaleWidth = (float) (width / mWidth);
-            scaleHeight = (float) (height / mHeight);
+        if(mWidth <= mHeight) {
+            scaleWidth = (float) (width/mWidth);
+            scaleHeight = scaleWidth;
         } else {
-            scaleWidth = (float) (height / mWidth);
-            scaleHeight = (float) (width / mHeight);
+            scaleHeight = (float) (width/mHeight);
+            scaleWidth = scaleHeight;
+            if(ori==-1)
+                matrix.postRotate(90);
         }
 //        matrix.postRotate(90); /* 翻转90度 */
         // 按照固定大小对图片进行缩放
@@ -308,7 +276,56 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         }
     }
 
-    private String getPhotopath() {
-        return Environment.getExternalStorageDirectory() + "/beautytest.jpg";
+    private String getPhotopath()
+    {
+        return Environment.getExternalStorageDirectory()+"/beautytest.jpg";
     }
+ 	@Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1234 && resultCode == RESULT_OK) {
+            if (null != data)
+                mFaceBitmap = data.getParcelableExtra("data");
+            else {
+                mFaceBitmap = getBitmapFromUrl(getPhotopath(), 480);
+            }
+
+            if (mFaceBitmap != null) {
+                // 显示图片
+                photo.setScaleType(ImageView.ScaleType.CENTER);
+                photo.setImageBitmap(mFaceBitmap);
+                // 检测是否是人脸,耗时操作不要放在UI线程！！！
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        saveScalePhoto(mFaceBitmap);
+                        Bitmap tmpBmp = mFaceBitmap.copy(Bitmap.Config.RGB_565, true);
+                        FaceDetector faceDet = new FaceDetector(tmpBmp.getWidth(), tmpBmp.getHeight(), 1); //only 1 face //虽然速度快， 但是是检测的眼睛之间的距离，不符合我们的需求
+                        FaceDetector.Face[] faceList = new FaceDetector.Face[1];
+                        faceDet.findFaces(tmpBmp, faceList);
+                        FaceDetector.Face face = faceList[0];
+                        if (face != null) {
+                            handler.sendEmptyMessage(0);
+                            timer = new Timer();
+                            TimerTask timerTask;
+                            timerTask = new TimerTask() {
+                                @Override
+                                public void run() {
+                                    handler.sendEmptyMessage(2);
+                                }
+                            };
+                            timer.schedule(timerTask, 0, 1000);
+                        } else {
+                            handler.sendEmptyMessage(1);
+                        }
+                        tmpBmp.recycle();
+//                        mFaceBitmap.recycle();
+                    }
+                });
+            }
+        }else{
+            finish();
+        }
+    }
+
 }

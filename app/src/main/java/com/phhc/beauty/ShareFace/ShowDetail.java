@@ -53,7 +53,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
     private RatingBar scoreBar;
     private String url, picID;
     private ProgressDialog progressDialog;
-    private int score;
+    private float score;
     private EditText comment;
     private RelativeLayout newComment, likeRL;
     private static int showNum;
@@ -137,7 +137,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         scoreBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-                score = (int) v;
+                score =  v;
                 if (score <= 1) {
                     AlertDialog dialog = getAlertDialogWithLowScore();
                     dialog.show();
@@ -147,36 +147,54 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
                 } else {
                     progressDialog = ProgressDialog.show(ShowDetail.this, "", "正在为该照片评分，请稍后...", true);
                     progressDialog.setCancelable(false);
-                    AVObject post = new AVObject("Score");
-                    post.put("picID", picID);
-                    post.put("score", score * 20);
-                    post.put("commenterID", AVUser.getCurrentUser().getObjectId());
-                    post.saveInBackground(new SaveCallback() {
+                    AVQuery<AVObject> query = new AVQuery<AVObject>("Score");
+                    query.whereEqualTo("picID", picID);
+                    query.whereEqualTo("commenterID", AVUser.getCurrentUser().getObjectId());
+                    query.findInBackground(new FindCallback<AVObject>() {
                         @Override
-                        public void done(AVException e) {
+                        public void done(List<AVObject> list, AVException e) {
                             if (e == null) {
-                                AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
-                                query.whereEqualTo("objectId", picID);
-                                query.findInBackground(new FindCallback<AVObject>() {
-                                    @Override
-                                    public void done(List<AVObject> list, AVException e) {
-                                        if (e == null) {
-                                            list.get(0).increment("scoreNum");
-                                            list.get(0).saveInBackground(new SaveCallback() {
-                                                @Override
-                                                public void done(AVException e) {
-                                                    progressDialog.dismiss();
-                                                    Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                if (list.size() == 0) {
+                                    AVObject post = new AVObject("Score");
+                                    post.put("picID", picID);
+                                    post.put("score", score * 20);
+                                    post.put("commenterID", AVUser.getCurrentUser().getObjectId());
+                                    post.saveInBackground(new SaveCallback() {
+                                        @Override
+                                        public void done(AVException e) {
+                                            if (e == null) {
+                                                AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
+                                                query.whereEqualTo("objectId", picID);
+                                                query.findInBackground(new FindCallback<AVObject>() {
+                                                    @Override
+                                                    public void done(List<AVObject> list, AVException e) {
+                                                        if (e == null) {
+                                                            list.get(0).increment("scoreNum");
+                                                            list.get(0).saveInBackground(new SaveCallback() {
+                                                                @Override
+                                                                public void done(AVException e) {
+                                                                    progressDialog.dismiss();
+                                                                    Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                            }
                                         }
-                                    }
-                                });
-                            } else {
-                                Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                    });
+                                } else {
+                                    progressDialog.dismiss();
+                                    //Score表中当前用户已经对此图片评价了，提示用户是否覆盖之前的评价 // TODO: 2016/1/9
+                                    AlertDialog dialog = getAlertDialogWithDoubleScore();
+                                    dialog.show();
+                                }
                             }
                         }
                     });
+
                 }
             }
         });
@@ -352,7 +370,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         super.onResume();
     }
 
-    // 手机号不正确警告框 尼见 2015-02-28
+    // 评分过低警告框 尼见 2015-02-28
     AlertDialog getAlertDialogWithLowScore() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this,
@@ -365,33 +383,50 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
             public void onClick(DialogInterface dialogInterface, int i) {
                 progressDialog = ProgressDialog.show(ShowDetail.this, "", "正在为该照片评分，请稍后...", true);
                 progressDialog.setCancelable(false);
-                AVObject post = new AVObject("Score");
-                post.put("picID", picID);
-                post.put("score", score * 20);
-                post.put("commenterID", AVUser.getCurrentUser().getObjectId());
-                post.saveInBackground(new SaveCallback() {
+                AVQuery<AVObject> query = new AVQuery<AVObject>("Score");
+                query.whereEqualTo("picID", picID);
+                query.whereEqualTo("commenterID", AVUser.getCurrentUser().getObjectId());
+                query.findInBackground(new FindCallback<AVObject>() {
                     @Override
-                    public void done(AVException e) {
+                    public void done(List<AVObject> list, AVException e) {
                         if (e == null) {
-                            AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
-                            query.whereEqualTo("objectId", picID);
-                            query.findInBackground(new FindCallback<AVObject>() {
-                                @Override
-                                public void done(List<AVObject> list, AVException e) {
-                                    if (e == null) {
-                                        list.get(0).increment("scoreNum");
-                                        list.get(0).saveInBackground(new SaveCallback() {
-                                            @Override
-                                            public void done(AVException e) {
-                                                progressDialog.dismiss();
-                                                Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                            progressDialog.dismiss();
+                            if (list.size() == 0) {
+                                AVObject post = new AVObject("Score");
+                                post.put("picID", picID);
+                                post.put("score", score * 20);
+                                post.put("commenterID", AVUser.getCurrentUser().getObjectId());
+                                post.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(AVException e) {
+                                        if (e == null) {
+                                            AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
+                                            query.whereEqualTo("objectId", picID);
+                                            query.findInBackground(new FindCallback<AVObject>() {
+                                                @Override
+                                                public void done(List<AVObject> list, AVException e) {
+                                                    if (e == null) {
+                                                        list.get(0).increment("scoreNum");
+                                                        list.get(0).saveInBackground(new SaveCallback() {
+                                                            @Override
+                                                            public void done(AVException e) {
+                                                                progressDialog.dismiss();
+                                                                Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                });
+                            } else {
+                                //Score表中当前用户已经对此图片评价了，提示用户是否覆盖之前的评价 // TODO: 2016/1/9
+                                AlertDialog dialog = getAlertDialogWithDoubleScore();
+                                dialog.show();
+                            }
                         }
                     }
                 });
@@ -403,7 +438,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         return dialog;
     }
 
-    // 手机号不正确警告框 尼见 2015-02-28
+    // 评分过高警告框 尼见 2015-02-28
     AlertDialog getAlertDialogWithHighScore() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this,
@@ -416,33 +451,50 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
             public void onClick(DialogInterface dialogInterface, int i) {
                 progressDialog = ProgressDialog.show(ShowDetail.this, "", "正在为该照片评分，请稍后...", true);
                 progressDialog.setCancelable(false);
-                AVObject post = new AVObject("Score");
-                post.put("picID", picID);
-                post.put("score", score * 20);
-                post.put("commenterID", AVUser.getCurrentUser().getObjectId());
-                post.saveInBackground(new SaveCallback() {
+                AVQuery<AVObject> query = new AVQuery<AVObject>("Score");
+                query.whereEqualTo("picID", picID);
+                query.whereEqualTo("commenterID", AVUser.getCurrentUser().getObjectId());
+                query.findInBackground(new FindCallback<AVObject>() {
                     @Override
-                    public void done(AVException e) {
+                    public void done(List<AVObject> list, AVException e) {
                         if (e == null) {
-                            AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
-                            query.whereEqualTo("objectId", picID);
-                            query.findInBackground(new FindCallback<AVObject>() {
-                                @Override
-                                public void done(List<AVObject> list, AVException e) {
-                                    if (e == null) {
-                                        list.get(0).increment("scoreNum");
-                                        list.get(0).saveInBackground(new SaveCallback() {
-                                            @Override
-                                            public void done(AVException e) {
-                                                progressDialog.dismiss();
-                                                Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                            progressDialog.dismiss();
+                            if (list.size() == 0) {
+                                AVObject post = new AVObject("Score");
+                                post.put("picID", picID);
+                                post.put("score", score * 20);
+                                post.put("commenterID", AVUser.getCurrentUser().getObjectId());
+                                post.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(AVException e) {
+                                        if (e == null) {
+                                            AVQuery<AVObject> query = new AVQuery<AVObject>("ShareFace");
+                                            query.whereEqualTo("objectId", picID);
+                                            query.findInBackground(new FindCallback<AVObject>() {
+                                                @Override
+                                                public void done(List<AVObject> list, AVException e) {
+                                                    if (e == null) {
+                                                        list.get(0).increment("scoreNum");
+                                                        list.get(0).saveInBackground(new SaveCallback() {
+                                                            @Override
+                                                            public void done(AVException e) {
+                                                                progressDialog.dismiss();
+                                                                Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
+                                });
+                            } else {
+                                //Score表中当前用户已经对此图片评价了，提示用户是否覆盖之前的评价 // TODO: 2016/1/9
+                                AlertDialog dialog = getAlertDialogWithDoubleScore();
+                                dialog.show();
+                            }
                         }
                     }
                 });
@@ -453,6 +505,42 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         AlertDialog dialog = builder.create();
         return dialog;
     }
+
+    // 重复打分警告框 尼见 2015-02-28
+    AlertDialog getAlertDialogWithDoubleScore() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,
+                AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+
+        builder.setTitle("提示");
+        builder.setMessage("已经对该图片评分，是否覆盖原先的分数");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                progressDialog = ProgressDialog.show(ShowDetail.this, "", "正在为该照片评分，请稍后...", true);
+                progressDialog.setCancelable(false);
+                AVQuery<AVObject> query = new AVQuery<AVObject>("Score");
+                query.whereEqualTo("picID", picID);
+                query.whereEqualTo("commenterID", AVUser.getCurrentUser().getObjectId());
+                query.findInBackground(new FindCallback<AVObject>() {
+                    @Override
+                    public void done(List<AVObject> list, AVException e) {
+                        if (e == null) {
+                            progressDialog.dismiss();
+                            list.get(0).put("score", score * 20);
+                            list.get(0).saveInBackground();
+                            Toast.makeText(ShowDetail.this, "评分成功了哦~", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("否", null);
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        return dialog;
+    }
+
 
     public class MyAdapter extends BaseAdapter {
 
@@ -479,6 +567,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
 
             view = LayoutInflater.from(ShowDetail.this).inflate(R.layout.comment_item, null);
             ImageView picComment = (ImageView) view.findViewById(R.id.picComment);
+            ImageView portrait = (ImageView)view.findViewById(R.id.portrait);
             TextView honeyName = (TextView) view.findViewById(R.id.honeyNameComment);
             TextView time = (TextView) view.findViewById(R.id.timeComment);
             TextView commentText = (TextView) view.findViewById(R.id.commentText);
@@ -503,6 +592,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
                 time.setText(time_param);
                 commentText.setText(list.get(position).getString("content"));
                 praiseNum.setText("(" + list.get(position).getInt("likeNum") + ")");
+
             }
 
             return view;

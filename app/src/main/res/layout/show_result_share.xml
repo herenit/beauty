@@ -120,9 +120,10 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/three"
                         android:layout_marginTop="10dp"
-                        android:textSize="16sp"
+                        android:layout_toRightOf="@+id/four"
                         android:text=""
-                        android:layout_toRightOf="@+id/four" />
+                        android:textSize="16sp"
+                        android:visibility="invisible" />
 
                     <TextView
                         android:id="@+id/two"
@@ -130,7 +131,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/one"
                         android:layout_marginTop="10dp"
-                        android:text="年龄："
+                        android:text="人生阶段："
                         android:textSize="16sp" />
 
                     <TextView
@@ -149,7 +150,8 @@
                         android:layout_below="@+id/three"
                         android:layout_marginTop="10dp"
                         android:text="瑕疵指数："
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
             </RelativeLayout>
@@ -166,7 +168,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="10dp"
-                    android:src="@mipmap/question" />
+                    android:src="@mipmap/help" />
 
                 <ImageView
                     android:id="@+id/icon"

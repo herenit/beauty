@@ -93,7 +93,18 @@ public class ShowResult extends Activity implements View.OnClickListener {
                 break;
         }
         skin.setText(Skin + "");
-        age.setText(Age + "");
+        if (Age < 18 && Age >= 0) {
+            age.setText("花样年华");
+        }
+        if (Age >= 18 && Age < 35) {
+            age.setText("奋斗时光");
+        }
+        if (Age >= 35 && Age < 55) {
+            age.setText("不惑岁月");
+        }
+        if (Age >= 55) {
+            age.setText("流光岁月");
+        }
         File filePath = getFileStreamPath(fileName);
         d = Drawable.createFromPath(filePath.toString());
         bytes = (byte[]) extras.getByteArray("bitmap");
@@ -116,6 +127,7 @@ public class ShowResult extends Activity implements View.OnClickListener {
                 AVObject post = new AVObject("ShareFace");
                 final AVFile file = new AVFile("photo", bytes);
                 post.put("pic", file);
+                post.put("distributeID", AVUser.getCurrentUser().getObjectId());
                 post.put("honeyName", AVUser.getCurrentUser().getUsername());
                 post.saveInBackground(new SaveCallback() {
                     @Override

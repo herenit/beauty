@@ -289,8 +289,18 @@ public class ShowResultShare extends Activity implements View.OnClickListener, R
                 break;
         }
         skin.setText(Skin + "");
-        age.setText(Age + "");
-
+        if (Age < 18 && Age >= 0) {
+            age.setText("花样年华");
+        }
+        if (Age >= 18 && Age < 35) {
+            age.setText("奋斗时光");
+        }
+        if (Age >= 35 && Age < 55) {
+            age.setText("不惑岁月");
+        }
+        if (Age >= 55) {
+            age.setText("流光岁月");
+        }
         back = (TextView) findViewById(R.id.back);
         back.setOnClickListener(this);
 
