@@ -92,17 +92,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="性别："
-                        android:textSize="16sp" />
+                        android:text="肤色肤质："
+                        android:textSize="16sp"
+                        android:visibility="visible" />
 
                     <TextView
-                        android:id="@+id/sex"
+                        android:id="@+id/skin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:layout_toRightOf="@+id/oneText"
-                        android:text="女"
-                        android:textSize="16sp" />
+                        android:text=""
+                        android:textSize="16sp"
+                        android:visibility="visible" />
 
                     <TextView
                         android:id="@+id/age"
@@ -111,7 +113,7 @@
                         android:layout_below="@+id/oneText"
                         android:layout_marginTop="10dp"
                         android:layout_toRightOf="@+id/oneText"
-                        android:text="20±2"
+                        android:text=""
                         android:textSize="16sp" />
 
                     <TextView
@@ -121,17 +123,19 @@
                         android:layout_below="@+id/twoText"
                         android:layout_marginTop="10dp"
                         android:layout_toRightOf="@+id/oneText"
-                        android:text="高兴"
+                        android:text=""
                         android:textSize="16sp" />
 
-                    <ImageView
-                        android:id="@+id/rate"
+                    <TextView
+                        android:id="@+id/flaw"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/threeText"
                         android:layout_marginTop="10dp"
                         android:layout_toRightOf="@+id/four"
-                        android:src="@mipmap/sixing" />
+                        android:text=""
+                        android:textSize="16sp"
+                        android:visibility="invisible" />
 
                     <TextView
                         android:id="@+id/twoText"
@@ -139,7 +143,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/oneText"
                         android:layout_marginTop="10dp"
-                        android:text="年龄："
+                        android:text="人生阶段："
                         android:textSize="16sp" />
 
                     <TextView
@@ -157,8 +161,9 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/threeText"
                         android:layout_marginTop="10dp"
-                        android:text="微笑指数："
-                        android:textSize="16sp" />
+                        android:text="瑕疵指数："
+                        android:textSize="16sp"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
             </RelativeLayout>
@@ -193,7 +198,7 @@
                     android:layout_below="@+id/iconCircle"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="5dp"
-                    android:text="颜值爆表了"
+                    android:text="总分"
                     android:textSize="20sp" />
 
                 <TextView
@@ -203,7 +208,7 @@
                     android:layout_below="@+id/explain"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="5dp"
-                    android:text="4561"
+                    android:text=""
                     android:textColor="#eda7a4"
                     android:textSize="20sp" />
 

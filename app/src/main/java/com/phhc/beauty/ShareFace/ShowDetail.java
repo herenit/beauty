@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
@@ -47,11 +48,11 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
 
     private List<AVObject> list;
     private MyAdapter myAdapter;
-    private TextView back, honeyName, submit, likeNum, scoreNum, averageScore;
+    private TextView back, honeyName, submit, likeNum, scoreNum, averageScore, skinTextView, ageTextView, faceTextView, scoreTextView;
     private ImageView pic, more;
     private Intent intent;
     private RatingBar scoreBar;
-    private String url, picID;
+    private String url, picID, stage, skin, scoreString, expression;
     private ProgressDialog progressDialog;
     private float score;
     private EditText comment;
@@ -66,6 +67,10 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_detail);
 
+        skinTextView = (TextView) findViewById(R.id.skin);
+        ageTextView = (TextView) findViewById(R.id.age);
+        faceTextView = (TextView) findViewById(R.id.face);
+        scoreTextView = (TextView) findViewById(R.id.score);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         scrollView.fullScroll(ScrollView.FOCUS_UP);
         listView = (ListView) findViewById(R.id.listView);
@@ -80,6 +85,14 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         intent = getIntent();
         url = intent.getStringExtra("url");
         picID = intent.getStringExtra("picID");
+        scoreString = intent.getStringExtra("score");
+        stage = intent.getStringExtra("stage");
+        skin = intent.getStringExtra("skin");
+        expression = intent.getStringExtra("expression");
+        skinTextView.setText(skin);
+        ageTextView.setText(stage);
+        faceTextView.setText(expression);
+        scoreTextView.setText(scoreString);
         newComment = (RelativeLayout) findViewById(R.id.newComment);
         progressDialog = ProgressDialog.show(ShowDetail.this, "", "数据加载中，请稍后...", true);
         progressDialog.setCancelable(false);
@@ -137,7 +150,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         scoreBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-                score =  v;
+                score = v;
                 if (score <= 1) {
                     AlertDialog dialog = getAlertDialogWithLowScore();
                     dialog.show();
@@ -200,6 +213,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
         });
         pic = (ImageView) findViewById(R.id.pic);
         honeyName.setText(intent.getStringExtra("honeyName"));
+
         ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         ImageLoader.getInstance().displayImage(url, pic, StatusUtils.normalImageOptions);
     }
@@ -339,6 +353,13 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
                             if (e == null) {
                                 progressDialog.dismiss();
                                 Toast.makeText(ShowDetail.this, "评价成功了~", Toast.LENGTH_SHORT).show();
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                if (imm.isActive()) {
+                                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);
+                                }
+                                new RemoteDataTask().execute();
+                                progressDialog = ProgressDialog.show(ShowDetail.this, "", "数据加载中，请稍后...", true);
+                                progressDialog.setCancelable(true);
                             } else {
                                 Toast.makeText(ShowDetail.this, "出错了~", Toast.LENGTH_SHORT).show();
                             }
@@ -567,7 +588,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
 
             view = LayoutInflater.from(ShowDetail.this).inflate(R.layout.comment_item, null);
             ImageView picComment = (ImageView) view.findViewById(R.id.picComment);
-            ImageView portrait = (ImageView)view.findViewById(R.id.portrait);
+            ImageView portrait = (ImageView) view.findViewById(R.id.portrait);
             TextView honeyName = (TextView) view.findViewById(R.id.honeyNameComment);
             TextView time = (TextView) view.findViewById(R.id.timeComment);
             TextView commentText = (TextView) view.findViewById(R.id.commentText);

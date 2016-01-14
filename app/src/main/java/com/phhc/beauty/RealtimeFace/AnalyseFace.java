@@ -133,7 +133,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                                                     } catch (IOException ioe) {
                                                         ioe.printStackTrace();
                                                     }
-                                                    intent.putExtra("bitmap", b);
+//                                                    intent.putExtra("bitmap", b);
                                                     intent.putExtra("picname", fileName);
                                                     intent.putExtra("Total", mJniLib.GetTotalScore());
                                                     intent.putExtra("FlawLabel", mJniLib.GetFlawLabel());
@@ -162,6 +162,18 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+//        savedInstanceState.putString("message", text.getText().toString());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+//        message = savedInstanceState.getString("message");
+    }
+
+    @Override
     protected void onDestroy() {
         executor.requestStop();
         super.onDestroy();
@@ -187,6 +199,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         //参考   http://blog.csdn.net/csqingchen/article/details/45502813
         if (intent.resolveActivity(getPackageManager()) != null) {
             Uri u = Uri.fromFile(new File(getPhotopath()));
+            //指定了生成文件的名称，则返回onActivityForResult时，data为null
             intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
             startActivityForResult(intent, 1234);
         }
@@ -203,16 +216,15 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         Matrix matrix = new Matrix();
         float scaleWidth = 1;
         float scaleHeight = 1;
-        int ori=-1;
+        int ori = -1;
         try {
             ExifInterface exif = new ExifInterface(url);
-            ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,-1);
+            ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(ori!=-1)
-        {
-            switch(ori) {
+        if (ori != -1) {
+            switch (ori) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     matrix.postRotate(90);
                     break;
@@ -228,13 +240,13 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         // 这里希望知道照片是横屏拍摄还是竖屏拍摄
         // 因为两种方式宽高不同，缩放效果就会不同
         // 这里用了比较笨的方式
-        if(mWidth <= mHeight) {
-            scaleWidth = (float) (width/mWidth);
+        if (mWidth <= mHeight) {
+            scaleWidth = (float) (width / mWidth);
             scaleHeight = scaleWidth;
         } else {
-            scaleHeight = (float) (width/mHeight);
+            scaleHeight = (float) (width / mHeight);
             scaleWidth = scaleHeight;
-            if(ori==-1)
+            if (ori == -1)
                 matrix.postRotate(90);
         }
 //        matrix.postRotate(90); /* 翻转90度 */
@@ -276,11 +288,11 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         }
     }
 
-    private String getPhotopath()
-    {
-        return Environment.getExternalStorageDirectory()+"/beautytest.jpg";
+    private String getPhotopath() {
+        return Environment.getExternalStorageDirectory() + "/beautytest.jpg";
     }
- 	@Override
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1234 && resultCode == RESULT_OK) {
@@ -323,7 +335,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                     }
                 });
             }
-        }else{
+        } else {
             finish();
         }
     }

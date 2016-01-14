@@ -15,7 +15,10 @@ import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -27,6 +30,7 @@ import com.phhc.beauty.R;
 public class ImageGridActivity extends Activity implements View.OnClickListener {
     public static final String EXTRA_IMAGE_LIST = "imagelist";
 
+    private Spinner spinner;
     List<ImageItem> dataList;
     List<ImageBucket> dataListBucket;
     GridView gridView;
@@ -34,6 +38,9 @@ public class ImageGridActivity extends Activity implements View.OnClickListener 
     AlbumHelper helper;
     Button bt;
     private TextView back;
+    List<String> list;
+    private RelativeLayout selectCategory;
+    private ArrayAdapter<String> adapterSpinner;
 
     Handler mHandler = new Handler() {
         @Override
@@ -51,9 +58,15 @@ public class ImageGridActivity extends Activity implements View.OnClickListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_image_grid);
 
+        spinner = (Spinner) findViewById(R.id.spinner);
+        list = new ArrayList<>();
+
+        helper = AlbumHelper.getHelper();
+        helper.init(getApplicationContext());
+        selectCategory = (RelativeLayout) findViewById(R.id.selectCategory);
+        selectCategory.setOnClickListener(this);
         helper = AlbumHelper.getHelper();
         helper.init(getApplicationContext());
         back = (TextView) findViewById(R.id.back);
@@ -63,10 +76,27 @@ public class ImageGridActivity extends Activity implements View.OnClickListener 
             if (dataListBucket.get(i).bucketName.equals("Camera")) {
                 dataList = dataListBucket.get(i).imageList;
             }
+            list.add(dataListBucket.get(i).bucketName);
         }
-//        dataList = (List<ImageItem>) getIntent().getSerializableExtra(
-//                EXTRA_IMAGE_LIST);
+        adapterSpinner = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapterSpinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                for (int j = 0; j < dataListBucket.size(); j++) {
+                    if (dataListBucket.get(j).bucketName.equals(((TextView) view).getText().toString())) {
+                        dataList = dataListBucket.get(i).imageList;
+                        initView();
+                    }
+                }
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         initView();
         bt = (Button) findViewById(R.id.bt);
         bt.setOnClickListener(new OnClickListener() {
@@ -130,6 +160,9 @@ public class ImageGridActivity extends Activity implements View.OnClickListener 
         switch (view.getId()) {
             case R.id.back:
                 finish();
+                break;
+            case R.id.selectCategory:
+                Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

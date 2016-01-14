@@ -5,9 +5,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,7 +24,10 @@ import com.avos.avoscloud.SaveCallback;
 import com.phhc.beauty.R;
 import com.phhc.beauty.main.MainActivity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 
 public class ShowResult extends Activity implements View.OnClickListener {
@@ -37,6 +42,7 @@ public class ShowResult extends Activity implements View.OnClickListener {
     private float Age, Skin, Total;
     private int ExpressionLabel, FlawLabel;
     private Dialog progressDialog;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +57,7 @@ public class ShowResult extends Activity implements View.OnClickListener {
         uploadServer = (RelativeLayout) findViewById(R.id.uploadServer);
         uploadServer.setOnClickListener(this);
         Bundle extras = getIntent().getExtras();
-        String fileName = extras.getString("picname");
+        fileName = extras.getString("picname");
         Total = extras.getFloat("Total");
         FlawLabel = extras.getInt("FlawLabel");
         ExpressionLabel = extras.getInt("ExpressionLabel");
@@ -107,9 +113,10 @@ public class ShowResult extends Activity implements View.OnClickListener {
         }
         File filePath = getFileStreamPath(fileName);
         d = Drawable.createFromPath(filePath.toString());
-        bytes = (byte[]) extras.getByteArray("bitmap");
+//        bytes = (byte[]) extras.getByteArray("bitmap");
         pic = (ImageView) findViewById(R.id.pic);
-        pic.setBackgroundDrawable(d);
+//        pic.setBackgroundDrawable(d);
+        pic.setImageDrawable(d);
         back = (TextView) findViewById(R.id.back);
         back.setOnClickListener(this);
 
@@ -119,15 +126,27 @@ public class ShowResult extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.back:
+                intent = new Intent();
+                intent.setAction("android.intent.action.AnalyseFace");
+                startActivity(intent);
                 finish();
                 break;
             case R.id.uploadServer:
                 progressDialog = ProgressDialog.show(this, "", "正在发布到秀场，请稍后...", true);
                 progressDialog.setCancelable(false);
                 AVObject post = new AVObject("ShareFace");
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Bitmap bitmap = ((BitmapDrawable) d).getBitmap();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                bitmap.recycle();
+                bytes = baos.toByteArray();
                 final AVFile file = new AVFile("photo", bytes);
                 post.put("pic", file);
                 post.put("distributeID", AVUser.getCurrentUser().getObjectId());
+                post.put("score", score.getText().toString());
+                post.put("skin", skin.getText().toString());
+                post.put("stage", age.getText().toString());
+                post.put("expression", face.getText().toString());
                 post.put("honeyName", AVUser.getCurrentUser().getUsername());
                 post.saveInBackground(new SaveCallback() {
                     @Override
@@ -148,6 +167,16 @@ public class ShowResult extends Activity implements View.OnClickListener {
                 });
                 break;
         }
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        intent = new Intent();
+        intent.setAction("android.intent.action.AnalyseFace");
+        startActivity(intent);
+        finish();
+        return super.onKeyDown(keyCode, event);
     }
 
 }

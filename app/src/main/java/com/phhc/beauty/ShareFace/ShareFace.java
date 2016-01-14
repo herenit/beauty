@@ -87,6 +87,10 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
                 intent.putExtra("url", avObject.getAVFile("pic").getUrl());
                 intent.putExtra("honeyName", avObject.getString("honeyName"));
                 intent.putExtra("picID", avObject.getObjectId());
+                intent.putExtra("stage", avObject.getString("stage"));
+                intent.putExtra("expression", avObject.getString("expression"));
+                intent.putExtra("skin", avObject.getString("skin"));
+                intent.putExtra("score", avObject.getString("score"));
                 intent.setAction("android.intent.action.ShowDetail");
                 startActivity(intent);
                 overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -186,6 +190,10 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
                     intent.putExtra("url", avObject.getAVFile("pic").getUrl());
                     intent.putExtra("honeyName", avObject.getString("honeyName"));
                     intent.putExtra("picID", avObject.getObjectId());
+                    intent.putExtra("stage", avObject.getString("stage"));
+                    intent.putExtra("expression", avObject.getString("expression"));
+                    intent.putExtra("skin", avObject.getString("skin"));
+                    intent.putExtra("score", avObject.getString("score"));
                     intent.setAction("android.intent.action.ShowDetail");
                     startActivity(intent);
                     overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);

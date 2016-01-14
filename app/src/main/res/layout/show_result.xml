@@ -63,9 +63,10 @@
 
                 <ImageView
                     android:id="@+id/pic"
-                    android:layout_width="100dp"
+                    android:layout_width="88dp"
                     android:layout_height="150dp"
-                    android:layout_marginLeft="20dp"
+                    android:scaleType="fitCenter"
+                    android:layout_marginLeft="40dp"
                     android:layout_marginTop="20dp" />
 
                 <RelativeLayout

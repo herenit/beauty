@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ import com.phhc.beauty.R;
 import com.phhc.beauty.interfaces.LoadDataListener;
 import com.phhc.beauty.utils.StatusUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
@@ -356,6 +358,11 @@ public class ShowResultShare extends Activity implements View.OnClickListener, R
 
     public void uploadLeanCloud() {
         AVObject post = new AVObject("FaceMap");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Bitmap bitmap = ((BitmapDrawable) d).getBitmap();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        bitmap.recycle();
+        bytes = baos.toByteArray();
         final AVFile file = new AVFile("photo", bytes);
         post.put("portrait", file);
         post.put("userID", AVUser.getCurrentUser().getObjectId());
