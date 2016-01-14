@@ -116,7 +116,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                                                     Intent intent = new Intent();
                                                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                                     mFaceBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                                                    mFaceBitmap.recycle();
+//                                                    mFaceBitmap.recycle();
                                                     byte[] b = baos.toByteArray();
                                                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                                                     // 当前手机时间
@@ -142,6 +142,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                                                     intent.putExtra("Skin", mJniLib.GetSkin());
                                                     intent.setAction("android.intent.action.ShowResult");
                                                     startActivity(intent);
+                                                    finish();
                                                 } else {
                                                     progressBar.setVisibility(View.INVISIBLE);
                                                     bottom.setVisibility(View.GONE);

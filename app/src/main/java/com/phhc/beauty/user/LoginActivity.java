@@ -68,16 +68,16 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.complete:
-                progressDialog = ProgressDialog.show(this, "", "数据加载中，请稍后...", true);
+//                progressDialog = ProgressDialog.show(this, "", "数据加载中，请稍后...", true);
                 AVUser.logInInBackground(username.getText().toString(), password.getText().toString(), new LogInCallback<AVUser>() {
                     public void done(AVUser user, AVException e) {
                         if (user != null) {
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
                             finish();
                             intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                         } else {
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
                             Toast toast = Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_LONG);
                             toast.show();
                         }
