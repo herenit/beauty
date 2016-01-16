@@ -10,17 +10,34 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
 import android.content.Context;
+import android.os.Handler;
 
 public class JNILib {
-	private String mMyPath=null;
-	private Thread mInitThread=null;
-	private Context mContext;
+	private static String mMyPath=null;
+	private static Thread mInitThread=null;
+	private static Context mContext=null;
+	private static Handler mHandler=null;
+	public static final int FACE_DETECTED = 1234;
+	public static final int FACE_NOTDETECTED = 4321;
+	public static final int CalculateNotRet = -1234;
 
 	static {
 		System.loadLibrary("caffe");
 		System.loadLibrary("FaceBeauty");
 	}
-	
+
+	public void setHandler(Handler _hdl)
+	{
+		mHandler = _hdl;
+	}
+	public static void onFaceDeceted(boolean isDetected)
+	{
+		if(mHandler!=null)
+		{
+			mHandler.sendEmptyMessage(isDetected?FACE_DETECTED:FACE_NOTDETECTED);
+		}
+	}
+
 	private boolean copyModelFile(Context context,String filename) throws IOException
 	{
 		InputStream is = context.getAssets().open(filename);
@@ -81,6 +98,8 @@ public class JNILib {
 	
 	public void InitFaceBeauty(Context context)
 	{
+		if(mContext!=null)  //just init once
+			return;
 		mContext = context.getApplicationContext();
 		mInitThread = new Thread(new Runnable() {
 			@Override
@@ -93,7 +112,7 @@ public class JNILib {
 		mInitThread.start();
 	}
 
-	protected void finalize()
+	public void DeInitFaceBeauty()
 	{
 		DeInit();
 	}

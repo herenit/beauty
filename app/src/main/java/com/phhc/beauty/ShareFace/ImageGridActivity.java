@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -108,23 +109,23 @@ public class ImageGridActivity extends Activity implements View.OnClickListener 
                 for (; it.hasNext(); ) {
                     list.add(it.next());
                 }
-
                 if (Bimp.act_bool) {
-//                    Intent intent = new Intent(ImageGridActivity.this,
-//                            PublishedActivity.class);
-//                    startActivity(intent);
-//                    Bimp.act_bool = false;
-                    Intent intent = new Intent();
-                    intent.setAction("android.intent.action.AnalyseFaceShare");
-                    startActivity(intent);
-                    Bimp.act_bool = false;
+                    if (Bimp.bmp.size() == 0) {
+                        Toast.makeText(ImageGridActivity.this, "您还没有选择图片哦~", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        Intent intent = new Intent();
+                        intent.setAction("android.intent.action.AnalyseFaceShare");
+                        startActivity(intent);
+                        Bimp.act_bool = false;
+                    }
                 }
                 for (int i = 0; i < list.size(); i++) {
                     if (Bimp.drr.size() < 9) {
                         Bimp.drr.add(list.get(i));
                     }
                 }
-//                finish();
+                finish();
             }
 
         });

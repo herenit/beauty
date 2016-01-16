@@ -466,7 +466,7 @@ public class ShowDetail extends Activity implements View.OnClickListener, AbsLis
                 AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
 
         builder.setTitle("提示");
-        builder.setMessage("20分，看来TA不是你的菜，分数不够高哦");
+        builder.setMessage("100分 你给TA打的分数很高哦，我猜TA是个美女（帅哥）");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

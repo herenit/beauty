@@ -12,5 +12,10 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="myTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="actionBarTheme">@style/myTheme.actionBar</item>-->
+        <item name="colorPrimary">#eda7a4</item>
+        <item name="actionBarSize">@dimen/iwf_actionBarSize</item>
+    </style>
 
 </resources>

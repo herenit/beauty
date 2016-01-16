@@ -147,7 +147,6 @@ public class ImageGridAdapter extends BaseAdapter {
 						holder.selected.setImageResource(-1);
 						selectTotal--;
 						map.remove(path);
-
 					} else {
 						Message message = Message.obtain(mHandler, 0);
 						message.sendToTarget();

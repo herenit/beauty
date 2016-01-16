@@ -39,9 +39,9 @@
             android:value="Wm3iPl74Ia8i17KwhCVpGk1w" />
 
         <activity
-            android:launchMode="singleTask"
             android:name="com.phhc.beauty.main.MainActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -171,11 +171,24 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:theme="@style/myTheme"
+            android:name="me.iwf.photopicker.PhotoPickerActivity"
+            />
+
+        <activity
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:name="me.iwf.photopicker.PhotoPagerActivity"
+            />
+
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote">
 
+        </service>
+
+        <service android:name="com.avos.avoscloud.PushService" />
     </application>
 
 </manifest>

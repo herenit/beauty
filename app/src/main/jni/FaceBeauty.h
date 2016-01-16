@@ -14,5 +14,6 @@
 #define NAME(FUN) NAME2(CLASS, FUN)
 
 #define CLASS com_phhc_beauty_JNILib
+#define CALLBACKCLASS "com/phhc/beauty/JNILib"
 
 #endif //_FACEBEAUTY_H_

@@ -171,12 +171,14 @@ public class ShowResult extends Activity implements View.OnClickListener {
 
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        intent = new Intent();
-        intent.setAction("android.intent.action.AnalyseFace");
-        startActivity(intent);
-        finish();
-        return super.onKeyDown(keyCode, event);
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            intent = new Intent();
+            intent.setAction("android.intent.action.AnalyseFace");
+            startActivity(intent);
+            finish(); //不知道为什么,只要在三星设备上会有问题
+            return true;  //这里必须吃掉 keyup事件 (这个事件会导致finish,在三星设备上会导致返回拍照的 系统拍照 直接退出)
+        }
+        return super.onKeyDown(keyCode, event);  //注意 这里back按键会自动调用finish
     }
-
 }

@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.avos.avoscloud.AVUser;
 import com.baidu.mapapi.radar.RadarSearchManager;
+import com.phhc.beauty.JNILib;
 import com.phhc.beauty.R;
 
 
@@ -23,6 +24,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Intent intent;
     private AVUser currentUser;
     private static boolean isExit = false;
+    private JNILib mJNILib=new JNILib();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         share.setOnClickListener(this);
         //判断是否有用户登录
         currentUser = AVUser.getCurrentUser();
+        mJNILib.InitFaceBeauty(this);  //make sure init first
     }
 
     @Override
@@ -115,6 +118,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
             handler.sendEmptyMessageDelayed(0, 2000);
         } else {
+            mJNILib.DeInitFaceBeauty();
             finish();
             System.exit(0);
         }

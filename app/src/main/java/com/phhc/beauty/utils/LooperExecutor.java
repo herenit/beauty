@@ -102,11 +102,11 @@ public class LooperExecutor extends Thread implements Executor {
       Log.w(TAG, "Running looper executor without calling requestStart()");
       return;
     }
-    if (Thread.currentThread().getId() == threadId) {
-      runnable.run();
-    } else {
-      handler.post(runnable);
-    }
+    //if (Thread.currentThread().getId() == threadId) {
+    //  runnable.run();
+    //} else {
+      handler.post(runnable);  //liyuming always FIFO
+    //}
   }
 
 }

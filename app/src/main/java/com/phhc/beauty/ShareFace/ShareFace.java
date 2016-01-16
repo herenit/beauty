@@ -1,12 +1,18 @@
 package com.phhc.beauty.ShareFace;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,9 +43,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import me.iwf.photopicker.utils.PhotoPickerIntent;
+
 
 public class ShareFace extends Activity implements View.OnClickListener, AbsListView.OnScrollListener {
 
+    public final static int REQUEST_CODE = 1;
     private List<AVObject> list;
     private MyAdapter myAdapter;
     private Dialog progressDialog;
@@ -105,6 +114,67 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
         faceMap.setOnClickListener(this);
     }
 
+
+    public void previewPhoto(Intent intent) {
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    enum RequestCode {
+        Button(R.id.button),
+        ButtonOnePhoto(R.id.camera),
+        ;
+
+        @IdRes
+        final int mViewId;
+        RequestCode(@IdRes int viewId) {
+            mViewId = viewId;
+        }
+    }
+
+    private void checkPermission(@NonNull RequestCode requestCode) {
+
+        int permissionState = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (permissionState != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        requestCode.ordinal());
+
+            }
+        } else {
+            // Permission granted
+            onClick(requestCode.mViewId);
+        }
+    }
+
+    private void onClick(@IdRes int viewId) {
+
+        switch (viewId) {
+
+
+            case R.id.camera: {
+                PhotoPickerIntent intent = new PhotoPickerIntent(ShareFace.this);
+                intent.setPhotoCount(1);
+                intent.setShowCamera(true);
+                startActivityForResult(intent, REQUEST_CODE);
+                break;
+            }
+
+        }
+    }
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -112,9 +182,10 @@ public class ShareFace extends Activity implements View.OnClickListener, AbsList
                 finish();
                 break;
             case R.id.camera:
-                intent = new Intent();
-                intent.setAction("android.intent.action.ImageGrid");
-                startActivity(intent);
+//                intent = new Intent();
+//                intent.setAction("android.intent.action.ImageGrid");
+//                startActivity(intent);
+                checkPermission(RequestCode.ButtonOnePhoto);
                 break;
             case R.id.faceMap:
                 intent = new Intent();

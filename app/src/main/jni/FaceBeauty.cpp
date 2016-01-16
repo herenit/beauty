@@ -129,6 +129,21 @@ JNIEXPORT void JNICALL NAME(DeInit)(JNIEnv * jenv, jclass s)
 	}
 }
 
+void FaceDecetedCallback(JNIEnv * jenv,jboolean isDetect)
+{
+	jclass classID = jenv->FindClass(CALLBACKCLASS);
+	if (!classID) {
+		return;
+	}
+
+	jmethodID methodID = jenv->GetStaticMethodID(classID, "onFaceDeceted", "(Z)V");
+	if (!methodID) {
+		return;
+	}
+
+	jenv->CallStaticVoidMethod(classID, methodID,isDetect);
+}
+
 JNIEXPORT jint JNICALL NAME(NativeCalculate)(JNIEnv * jenv, jclass s, jstring jPicName)
 {
 	if(mLastretValue !=ERR_NONE)
@@ -151,12 +166,14 @@ JNIEXPORT jint JNICALL NAME(NativeCalculate)(JNIEnv * jenv, jclass s, jstring jP
 
 		if (0 >= ndFaceNum || ERR_NONE != nRetCode)
 		{
+			FaceDecetedCallback(jenv,JNI_FALSE);
 			if(0 >= ndFaceNum && nRetCode==ERR_NONE)
 				nRetCode = -666;
 			msg_Err("#---Can not detect any faces!");
 			std::cout << "Can not detect any faces!" << std::endl;
 			throw nRetCode;
 		}
+		FaceDecetedCallback(jenv,JNI_TRUE);
 
 		msg_Err("#---55555");
 		// Pick up the largest one as the true face

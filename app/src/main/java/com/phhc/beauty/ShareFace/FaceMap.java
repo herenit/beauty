@@ -225,8 +225,8 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
 
         } else {
 //            // 上传失败
-            Toast.makeText(FaceMap.this, "单次上传位置失败", Toast.LENGTH_LONG)
-                    .show();
+//            Toast.makeText(FaceMap.this, "单次上传位置失败", Toast.LENGTH_LONG)
+//                    .show();
         }
     }
 

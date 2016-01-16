@@ -1,6 +1,7 @@
 package com.phhc.beauty.RealtimeFace;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,12 +14,13 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.app.ActivityManager;
 
 import com.phhc.beauty.R;
 import com.phhc.beauty.JNILib;
@@ -30,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,8 +42,8 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 public class AnalyseFace extends Activity implements View.OnClickListener {
 
     private LooperExecutor executor;
-    private Handler mHandler = new Handler();
-    private Bitmap mFaceBitmap;
+    private static Handler mHandler = new Handler();
+    private Bitmap mFaceBitmap=null;
     private JNILib mJniLib = new JNILib();
     private int mRet;
     private static final int CAMERA_REQUEST = 1888;
@@ -48,15 +51,19 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
     private RelativeLayout reCamera;
     private TextView back, bottom, changeSecond;
     private MaterialProgressBar progressBar;
-    private Handler handler;
+    private static Handler handler;
     private ImageView photo;
     private TextView tips;
-    private Timer timer;
+    private Timer timer=new Timer();  //加个补丁,保证不是null
+    private Object bWait= new Object();
+    private Context mContext;
+    private boolean mIsStore = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.analyse_face);
+        mContext = this;
 
         executor = new LooperExecutor();
         executor.requestStart();
@@ -69,13 +76,29 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         changeSecond = (TextView) findViewById(R.id.changeSecond);
         photo = (ImageView) findViewById(R.id.photo);
         tips = (TextView) findViewById(R.id.tips);
-        takePhoto();
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
+                if (msg.what == JNILib.FACE_DETECTED)
+                {
+                    handler.sendEmptyMessage(0);
+                    timer = new Timer();
+                    TimerTask timerTask;
+                    timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            handler.sendEmptyMessage(2);
+                        }
+                    };
+                    timer.schedule(timerTask, 0, 1000);
+                }
+                else if (msg.what == JNILib.FACE_NOTDETECTED)
+                {
+                    handler.sendEmptyMessage(1);
+                }
                 //"0"代表检测到人脸
-                if (msg.what == 0) {
+                else if (msg.what == 0) {
                     progressBar.setVisibility(View.INVISIBLE);
                     bottom.setVisibility(View.GONE);
                     tips.setVisibility(View.GONE);
@@ -83,15 +106,15 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                     changeSecond.setVisibility(View.VISIBLE);
                 }
                 //“1”代表没有检测到人脸
-                if (msg.what == 1) {
+                else if (msg.what == 1) {
                     progressBar.setVisibility(View.INVISIBLE);
                     bottom.setVisibility(View.GONE);
                     reCamera.setVisibility(View.VISIBLE);
                     tips.setVisibility(View.VISIBLE);
                     photo.setImageResource(R.mipmap.white);
                 }
-                //"2"代表
-                if (msg.what == 2) {
+                //"2"代表开始颜值分析
+                else if (msg.what == 2) {
                     changeSecond.setText(i-- + "秒后开始颜值分析");
                     if (i >= 0) {
 
@@ -106,52 +129,53 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        mRet = mJniLib.Calculate(Environment.getExternalStorageDirectory() + "/beautytestScale.jpg");
-                                        mHandler.post(new Runnable() {  //update UI
-                                            @Override
-                                            public void run() {
-                                                if (0 == mRet) {
-                                                    progressBar.setVisibility(View.INVISIBLE);
-                                                    bottom.setVisibility(View.GONE);
-                                                    Intent intent = new Intent();
-                                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                                    mFaceBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//                                                    mFaceBitmap.recycle();
-                                                    byte[] b = baos.toByteArray();
-                                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                                                    // 当前手机时间
-                                                    SimpleDateFormat formatter2 = new SimpleDateFormat("HH:mm");
-                                                    long timeShow = System.currentTimeMillis();
-                                                    String fileName = timeShow + ".png";
-                                                    try {
-                                                        FileOutputStream fileOutStream = openFileOutput(fileName, MODE_PRIVATE);
-                                                        fileOutStream.write(b);  //b is byte array
-                                                        //(used if you have your picture downloaded
-                                                        // from the *Web* or got it from the *devices camera*)
-                                                        //otherwise this technique is useless
-                                                        fileOutStream.close();
-                                                    } catch (IOException ioe) {
-                                                        ioe.printStackTrace();
-                                                    }
+                                        //mRet = mJniLib.Calculate(Environment.getExternalStorageDirectory() + "/beautytestScale.jpg");
+                                        synchronized(bWait) {
+                                            mHandler.post(new Runnable() {  //update UI
+                                                @Override
+                                                public void run() {
+                                                    if (0 == mRet) {
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        bottom.setVisibility(View.GONE);
+                                                        Intent intent = new Intent();
+                                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                                        mFaceBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                                                        byte[] b = baos.toByteArray();
+                                                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                                                        // 当前手机时间
+                                                        SimpleDateFormat formatter2 = new SimpleDateFormat("HH:mm");
+                                                        long timeShow = System.currentTimeMillis();
+                                                        String fileName = timeShow + ".png";
+                                                        try {
+                                                            FileOutputStream fileOutStream = openFileOutput(fileName, MODE_PRIVATE);
+                                                            fileOutStream.write(b);  //b is byte array
+                                                            //(used if you have your picture downloaded
+                                                            // from the *Web* or got it from the *devices camera*)
+                                                            //otherwise this technique is useless
+                                                            fileOutStream.close();
+                                                        } catch (IOException ioe) {
+                                                            ioe.printStackTrace();
+                                                        }
 //                                                    intent.putExtra("bitmap", b);
-                                                    intent.putExtra("picname", fileName);
-                                                    intent.putExtra("Total", mJniLib.GetTotalScore());
-                                                    intent.putExtra("FlawLabel", mJniLib.GetFlawLabel());
-                                                    intent.putExtra("ExpressionLabel", mJniLib.GetExpressionLabel());
-                                                    intent.putExtra("Age", mJniLib.GetAge());
-                                                    intent.putExtra("Skin", mJniLib.GetSkin());
-                                                    intent.setAction("android.intent.action.ShowResult");
-                                                    startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    progressBar.setVisibility(View.INVISIBLE);
-                                                    bottom.setVisibility(View.GONE);
-                                                    reCamera.setVisibility(View.VISIBLE);
-                                                    tips.setVisibility(View.VISIBLE);
-                                                    photo.setImageResource(R.mipmap.white);
+                                                        intent.putExtra("picname", fileName);
+                                                        intent.putExtra("Total", mJniLib.GetTotalScore());
+                                                        intent.putExtra("FlawLabel", mJniLib.GetFlawLabel());
+                                                        intent.putExtra("ExpressionLabel", mJniLib.GetExpressionLabel());
+                                                        intent.putExtra("Age", mJniLib.GetAge());
+                                                        intent.putExtra("Skin", mJniLib.GetSkin());
+                                                        intent.setAction("android.intent.action.ShowResult");
+                                                        startActivity(intent);
+                                                        finish();
+                                                    } else {
+                                                        progressBar.setVisibility(View.INVISIBLE);
+                                                        bottom.setVisibility(View.GONE);
+                                                        reCamera.setVisibility(View.VISIBLE);
+                                                        tips.setVisibility(View.VISIBLE);
+                                                        photo.setImageResource(R.mipmap.white);
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
                                 }
                         );
@@ -159,7 +183,16 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                 }
             }
         };
-        mJniLib.InitFaceBeauty(this);
+        mJniLib.setHandler(handler);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if(mIsStore)
+            mIsStore = false;
+        else
+            takePhoto(); // put last to make sure handler has been create
     }
 
     @Override
@@ -170,13 +203,17 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
-        super.onRestoreInstanceState(savedInstanceState);
+        mIsStore = true;
+        super.onRestoreInstanceState(savedInstanceState);  //悲催的 这里比oncreate晚 Android设计不合理, 所以没办法用这个来 不调用takePhoto
 //        message = savedInstanceState.getString("message");
+        mJniLib.InitFaceBeauty(this);
     }
 
     @Override
     protected void onDestroy() {
         executor.requestStop();
+        if(mFaceBitmap!=null&&!mFaceBitmap.isRecycled())
+            mFaceBitmap.recycle(); //-最后才recycle
         super.onDestroy();
     }
 
@@ -189,6 +226,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
             case R.id.reCamera:
                 i = 5;
                 timer.cancel();
+                tips.setVisibility(View.GONE);
                 takePhoto();
                 break;
         }
@@ -269,14 +307,14 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
         String fileName = "";
         // 文件夹路径
         String pathUrl = Environment.getExternalStorageDirectory().getPath() + "/";
-        String imageName = "beautytestScale.jpg";
+        String imageName = "beautytestScale.png";
         FileOutputStream fos = null;
         File file = new File(pathUrl);
         file.mkdirs();// 创建文件夹
         fileName = pathUrl + imageName;
         try {
             fos = new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 98, fos);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 98, fos);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
@@ -297,6 +335,7 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1234 && resultCode == RESULT_OK) {
+            Log.i("AnalyseFace","requestCode="+requestCode+"  resultCode=RESULT_OK");
             if (null != data)
                 mFaceBitmap = data.getParcelableExtra("data");
             else {
@@ -312,12 +351,25 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                     @Override
                     public void run() {
                         saveScalePhoto(mFaceBitmap);
+                        //直接全部使用算法的人脸检测 ,如果这里返回-666 表示人脸没有检测到 ,而且这还有一个好处, 先算, 让用户感觉算的快
+                        synchronized(bWait) {
+                            mRet = mJniLib.Calculate(Environment.getExternalStorageDirectory() + "/beautytestScale.png");
+                            if(mRet==-5) //#define ERR_SDKNOINIT -5
+                            {
+                                mJniLib.InitFaceBeauty(mContext);
+                                mRet = mJniLib.Calculate(Environment.getExternalStorageDirectory() + "/beautytestScale.png");
+                            }
+                        }
+                        //Log.i("dd", "dd");
+                        /*
                         Bitmap tmpBmp = mFaceBitmap.copy(Bitmap.Config.RGB_565, true);
                         FaceDetector faceDet = new FaceDetector(tmpBmp.getWidth(), tmpBmp.getHeight(), 1); //only 1 face //虽然速度快， 但是是检测的眼睛之间的距离，不符合我们的需求
                         FaceDetector.Face[] faceList = new FaceDetector.Face[1];
                         faceDet.findFaces(tmpBmp, faceList);
                         FaceDetector.Face face = faceList[0];
                         if (face != null) {
+                        if(mRet==0)
+                        {
                             handler.sendEmptyMessage(0);
                             timer = new Timer();
                             TimerTask timerTask;
@@ -330,13 +382,14 @@ public class AnalyseFace extends Activity implements View.OnClickListener {
                             timer.schedule(timerTask, 0, 1000);
                         } else {
                             handler.sendEmptyMessage(1);
-                        }
-                        tmpBmp.recycle();
+                        }*/
+//                        tmpBmp.recycle();
 //                        mFaceBitmap.recycle();
                     }
                 });
             }
         } else {
+            Log.e("AnalyseFace","requestCode="+requestCode+"  resultCode="+resultCode);
             finish();
         }
     }

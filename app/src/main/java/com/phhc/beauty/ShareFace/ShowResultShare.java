@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -44,6 +45,7 @@ import com.baidu.mapapi.radar.RadarUploadInfo;
 import com.baidu.mapapi.radar.RadarUploadInfoCallback;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.phhc.beauty.JNILib;
 import com.phhc.beauty.R;
 import com.phhc.beauty.interfaces.LoadDataListener;
 import com.phhc.beauty.utils.StatusUtils;
@@ -89,6 +91,8 @@ public class ShowResultShare extends Activity implements View.OnClickListener, R
     private ImageView camera;
     private RelativeLayout faceMap;
     private CustomDialog cdd;
+    private JNILib mJniLib = new JNILib();
+
 
     @Override
     public void onReceiveLocation(BDLocation bdLocation) {
