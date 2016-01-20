@@ -3,9 +3,7 @@ package com.phhc.beauty.ShareFace;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,7 +20,6 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -45,25 +42,21 @@ import com.baidu.mapapi.radar.RadarUploadInfoCallback;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.phhc.beauty.R;
-import com.phhc.beauty.main.MainActivity;
 import com.phhc.beauty.utils.App;
 import com.phhc.beauty.utils.StatusUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 public class FaceMap extends Activity implements View.OnClickListener, RadarUploadInfoCallback, RadarSearchListener, BDLocationListener, BaiduMap.OnMarkerClickListener, BaiduMap.OnMapClickListener {
 
-    long timeSwapBuff = 0L;
     private LatLng pt = null;
     private Intent intent;
     private MapView mMapView = null;
     // 定位相关
     LocationClient mLocClient;
     BDLocation bdLocation = new BDLocation();
-    public MyLocationListenner myListener = new MyLocationListenner();
     BaiduMap mBaiduMap;
     private int uploadFlag = 1;
     // UI相关
@@ -87,41 +80,30 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
 
         back = (TextView) findViewById(R.id.back);
         back.setOnClickListener(this);
-        intent = getIntent();
-//        SDKInitializer.initialize(getApplicationContext());
         App.getInstance().addActivity(this);
         // 设置默认打开的 Activity
         PushService.setDefaultPushCallback(this, FaceMap.class);
         pts = new ArrayList<>();
-        //获取地图控件引用
-        mMapView = (MapView) findViewById(R.id.bmapView);
-        // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
         // 开启定位图层
-        mBaiduMap.setMyLocationEnabled(true);
         mBaiduMap.setOnMarkerClickListener(this);
-        // 定位初始化
-        mLocClient = new LocationClient(this);
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true);// 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        // TODO
-        //这里设置的是雷达搜索的范围，如果想增大搜索范围可以自己定义
-        option.setScanSpan(20000);
-        mLocClient.setLocOption(option);
-        mLocClient.start();
+        mBaiduMap.setOnMapClickListener(this);
+        mBaiduMap.setMyLocationEnabled(true);
         //周边雷达设置监听
         RadarSearchManager.getInstance().addNearbyInfoListener(this);
         //周边雷达设置用户，id为空默认是设备标识
-        //TODO
         //这里的setUserID是作为周边雷达的唯一标志，可以用用户ID来唯一标志，这里我是用设置的UUID来设置的，你改的时候可以将当前用户的ID来设置这个参数。
         RadarSearchManager.getInstance().setUserID(AVUser.getCurrentUser().getObjectId());
-        //对IM进行初始化
-        //TODO
-        //这个ID和上面的id一样，可以自己定制
-        App.setClientIdToPre(App.getInstance().deviceId);
+        // 定位初始化
+        mLocClient = new LocationClient(this);
+        mLocClient.registerLocationListener(this);
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(false);// 打开gps
+        option.setCoorType("bd09ll"); // 设置坐标类型
+        option.setScanSpan(20000);
+        mLocClient.setLocOption(option);
+        mLocClient.start();
         mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
     }
 
@@ -136,20 +118,16 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
 
     @Override
     protected void onResume() {
-        super.onResume();
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mMapView.onResume();
-        //周边雷达设置监听
-        RadarSearchManager.getInstance().addNearbyInfoListener(this);
-        //周边雷达设置用户，id为空默认是设备标识
-        RadarSearchManager.getInstance().setUserID(AVUser.getCurrentUser().getObjectId());
+        super.onResume();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
         //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
         mMapView.onPause();
+        super.onPause();
     }
 
     @Override
@@ -161,29 +139,82 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
         RadarSearchManager.getInstance().clearUserInfo();
         RadarSearchManager.getInstance().destroy();
         // 释放地图
-//        mMapView.onDestroy();
+        if (mCurrentMarker != null) {
+            mCurrentMarker.recycle();
+        }
+        mMapView.onDestroy();
         mBaiduMap = null;
         super.onDestroy();
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        // 退出时销毁定位
-        mLocClient.stop();
-        // 释放周边雷达相关
-        RadarSearchManager.getInstance().removeNearbyInfoListener(this);
-        RadarSearchManager.getInstance().clearUserInfo();
-        RadarSearchManager.getInstance().destroy();
-        // 释放地图
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//
+//        // 退出时销毁定位
+//        mLocClient.stop();
+//        // 释放周边雷达相关
+//        RadarSearchManager.getInstance().removeNearbyInfoListener(this);
+//        RadarSearchManager.getInstance().clearUserInfo();
+//        RadarSearchManager.getInstance().destroy();
+//        // 释放地图
+//        mCurrentMarker.recycle();
 //        mMapView.onDestroy();
-        mBaiduMap = null;
-        return super.onKeyDown(keyCode, event);
-    }
+//        mBaiduMap = null;
+//        return super.onKeyDown(keyCode, event);
+//    }
 
     @Override
-    public void onReceiveLocation(BDLocation arg0) {
+    public void onReceiveLocation(BDLocation location) {
+        // map view 销毁后不在处理新接收的位置
+        if (location == null || mMapView == null)
+            return;
+        MyLocationData locData = new MyLocationData.Builder()
+                .accuracy(location.getRadius())
+                        // 此处设置开发者获取到的方向信息，顺时针0-360
+                .direction(0).latitude(location.getLatitude())
+                .longitude(location.getLongitude()).build();
+        ImageView imageView = new ImageView(FaceMap.this);
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(FaceMap.this));
+        if (AVUser.getCurrentUser().getAVFile("portrait") == null) {
 
+        } else {
+            ImageLoader.getInstance().displayImage(AVUser.getCurrentUser().getAVFile("portrait").getUrl(), imageView, StatusUtils.normalImageOptions);
+        }
+        RelativeLayout relativeLayout = new RelativeLayout(FaceMap.this);
+        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(70, 70);
+        relativeLayout.addView(imageView, rlp);
+        // 修改为自定义marker
+//            mCurrentMarker = BitmapDescriptorFactory
+//                    .fromView(relativeLayout);
+        mBaiduMap
+                .setMyLocationConfigeration(new MyLocationConfiguration(
+                        mCurrentMode, true, mCurrentMarker));
+        if (mBaiduMap != null) {
+            mBaiduMap.setMyLocationData(locData);
+        }
+        pt = new LatLng(location.getLatitude(), location.getLongitude());
+        longitude = location.getLongitude();
+        latitude = location.getLatitude();
+        if (pt != null && uploadFlag == 1) {
+            //上传自己的位置信息
+            RadarUploadInfo info = new RadarUploadInfo();
+            info.pt = pt;
+            info.comments = AVUser.getCurrentUser().getUsername();
+            RadarSearchManager.getInstance().uploadInfoRequest(info);
+            pts.add(0, pt);
+            uploadFlag = 0;
+            //发起检索周边的请求
+            RadarNearbySearchOption option = new RadarNearbySearchOption()
+                    .centerPt(pt).pageNum(0).radius(20000);
+            RadarSearchManager.getInstance().nearbyInfoRequest(option);
+        }
+        if (isFirstLoc) {
+            isFirstLoc = false;
+            LatLng ll = new LatLng(location.getLatitude(),
+                    location.getLongitude());
+            MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
+            mBaiduMap.animateMapStatus(u);
+        }
     }
 
     @Override
@@ -213,7 +244,7 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
             // 处理数据
             parseResultToMap(listResult);
         } else {
-            Toast.makeText(this, "您附近暂时没有美颜用户哦~", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "您附近暂时没有美颜用户哦~", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -222,11 +253,12 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
 
         if (error == RadarSearchError.RADAR_NO_ERROR) {
             // 上传成功
-
+            Toast.makeText(FaceMap.this, "单次上传位置成功", Toast.LENGTH_SHORT)
+                    .show();
         } else {
 //            // 上传失败
-//            Toast.makeText(FaceMap.this, "单次上传位置失败", Toast.LENGTH_LONG)
-//                    .show();
+            Toast.makeText(FaceMap.this, "单次上传位置失败", Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -238,85 +270,6 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
     @Override
     public RadarUploadInfo onUploadInfoCallback() {
         return null;
-    }
-
-    /**
-     * 定位SDK监听函数
-     */
-    public class MyLocationListenner implements BDLocationListener {
-
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            // map view 销毁后不在处理新接收的位置
-            if (location == null || mMapView == null)
-                return;
-            MyLocationData locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                            // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(0).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
-            ImageView imageView = new ImageView(FaceMap.this);
-            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(FaceMap.this));
-            if (AVUser.getCurrentUser().getAVFile("portrait") == null) {
-
-            } else {
-                ImageLoader.getInstance().displayImage(AVUser.getCurrentUser().getAVFile("portrait").getUrl(), imageView, StatusUtils.normalImageOptions);
-            }
-            RelativeLayout relativeLayout = new RelativeLayout(FaceMap.this);
-            RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(70, 70);
-            relativeLayout.addView(imageView, rlp);
-            // 修改为自定义marker
-//            mCurrentMarker = BitmapDescriptorFactory
-//                    .fromView(relativeLayout);
-            mBaiduMap
-                    .setMyLocationConfigeration(new MyLocationConfiguration(
-                            mCurrentMode, true, mCurrentMarker));
-            if (mBaiduMap != null) {
-                mBaiduMap.setMyLocationData(locData);
-            }
-            pt = new LatLng(location.getLatitude(), location.getLongitude());
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-            if (pt != null && uploadFlag == 1) {
-                //上传自己的位置信息
-                RadarUploadInfo info = new RadarUploadInfo();
-                info.pt = pt;
-//                info.comments = AVUser.getCurrentUser().getObjectId();
-                if (AVUser.getCurrentUser().getAVFile("portrait") != null) {
-//                    info.comments = AVUser.getCurrentUser().getAVFile("portrait").getUrl();
-                } else {
-
-                }
-                pts.add(0, pt);
-                RadarSearchManager.getInstance().uploadInfoRequest(info);
-                new Upload().execute();
-                uploadFlag = 0;
-                //发起检索周边的请求
-                RadarNearbySearchOption option = new RadarNearbySearchOption()
-                        .centerPt(pt).pageNum(0).radius(20000);
-                RadarSearchManager.getInstance().nearbyInfoRequest(option);
-            }
-            if (isFirstLoc) {
-                isFirstLoc = false;
-                LatLng ll = new LatLng(location.getLatitude(),
-                        location.getLongitude());
-                MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
-                mBaiduMap.animateMapStatus(u);
-            }
-        }
-
-        public void onReceivePoi(BDLocation poiLocation) {
-
-        }
-    }
-
-    // 在工作线程中上传当前位置信息 尼见 2014-02-28
-    class Upload extends AsyncTask<Object, Object, Object> {
-
-        @Override
-        protected Objects doInBackground(Object... params) {
-            return null;
-        }
     }
 
     /**
@@ -336,14 +289,14 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
                 imageView.setImageResource(R.mipmap.portrait_backup);
 //                ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(FaceMap.this));
 //                ImageLoader.getInstance().displayImage(resParam.infoList.get(i).comments, imageView, StatusUtils.normalImageOptions);
-                AVQuery<AVObject>query2 = new AVQuery<>("FaceMap");
-                query2.whereEqualTo("userID",resParam.infoList.get(j).userID);
+                AVQuery<AVObject> query2 = new AVQuery<>("FaceMap");
+                query2.whereEqualTo("userID", resParam.infoList.get(j).userID);
                 query2.orderByDescending("createdAT");
                 query2.findInBackground(new FindCallback<AVObject>() {
                     @Override
                     public void done(List<AVObject> list, AVException e) {
-                        if(e == null){
-                            if(list.size() == 0){
+                        if (e == null) {
+                            if (list.size() == 0) {
                                 AVQuery<AVUser> query = AVUser.getQuery();
                                 query.whereEqualTo("objectId", resParam.infoList.get(j).userID);
                                 query.findInBackground(new FindCallback<AVUser>() {
@@ -361,9 +314,9 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
                                                 relativeLayout.addView(imageView, rlp);
                                                 //设置地图悬浮层
                                                 try {
-                                                    BitmapDescriptor ff3 = BitmapDescriptorFactory
+                                                    mCurrentMarker = BitmapDescriptorFactory
                                                             .fromView(relativeLayout);
-                                                    MarkerOptions option = new MarkerOptions().icon(ff3).position(
+                                                    MarkerOptions option = new MarkerOptions().icon(mCurrentMarker).position(
                                                             resParam.infoList.get(j).pt);
                                                     Bundle des = new Bundle();
                                                     if (resParam.infoList.get(j).comments == null
@@ -382,7 +335,7 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
                                         }
                                     }
                                 });
-                            }else{
+                            } else {
                                 ImageLoader.getInstance().displayImage(list.get(0).getAVFile("portrait").getUrl(), imageView, StatusUtils.normalImageOptions);
                                 RelativeLayout relativeLayout = new RelativeLayout(FaceMap.this);
                                 RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(70, 70);
@@ -390,9 +343,9 @@ public class FaceMap extends Activity implements View.OnClickListener, RadarUplo
                                 relativeLayout.addView(imageView, rlp);
                                 //设置地图悬浮层
                                 try {
-                                    BitmapDescriptor ff3 = BitmapDescriptorFactory
+                                    mCurrentMarker = BitmapDescriptorFactory
                                             .fromView(relativeLayout);
-                                    MarkerOptions option = new MarkerOptions().icon(ff3).position(
+                                    MarkerOptions option = new MarkerOptions().icon(mCurrentMarker).position(
                                             resParam.infoList.get(j).pt);
                                     Bundle des = new Bundle();
                                     if (resParam.infoList.get(j).comments == null

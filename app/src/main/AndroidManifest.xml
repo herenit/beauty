@@ -36,7 +36,7 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="Wm3iPl74Ia8i17KwhCVpGk1w" />
+            android:value="xoo3VhtDKvbMt5H8DOCpGrLo" />
 
         <activity
             android:name="com.phhc.beauty.main.MainActivity"
