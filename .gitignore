@@ -8,3 +8,5 @@
 /captures
 /app/src/main/assets/libfa.so
 .idea/
+.git/
+.svn/
